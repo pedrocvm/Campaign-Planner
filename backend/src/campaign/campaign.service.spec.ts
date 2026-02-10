@@ -28,7 +28,7 @@ describe('CampaignService', () => {
       const result = service.calculateBudgetDistribution(input);
 
       expect(result.allocations).toHaveLength(3);
-      expect(result.allocations.map(a => a.channel)).toEqual([
+      expect(result.allocations.map((a) => a.channel)).toEqual([
         'Video Ads',
         'Display Ads',
         'Social Ads',
@@ -45,7 +45,7 @@ describe('CampaignService', () => {
 
       const totalPercentage = result.allocations.reduce(
         (sum, a) => sum + a.percentage,
-        0,
+        0
       );
 
       expect(Math.round(totalPercentage)).toBe(100);
@@ -60,8 +60,8 @@ describe('CampaignService', () => {
 
       const result = service.calculateBudgetDistribution(input);
 
-      result.allocations.forEach(allocation => {
-        expect(allocation.percentage).toBeGreaterThanOrEqual(19.9); // Allow small floating point error
+      result.allocations.forEach((allocation) => {
+        expect(allocation.percentage).toBeGreaterThanOrEqual(19.9);
       });
     });
 
@@ -74,8 +74,8 @@ describe('CampaignService', () => {
 
       const result = service.calculateBudgetDistribution(input);
 
-      result.allocations.forEach(allocation => {
-        expect(allocation.percentage).toBeLessThanOrEqual(50.1); // Allow small floating point error
+      result.allocations.forEach((allocation) => {
+        expect(allocation.percentage).toBeLessThanOrEqual(50.1);
       });
     });
 
@@ -89,14 +89,14 @@ describe('CampaignService', () => {
       const result = service.calculateBudgetDistribution(input);
 
       const socialAllocation = result.allocations.find(
-        a => a.channel === 'Social Ads',
+        (a) => a.channel === 'Social Ads'
       );
       const videoAllocation = result.allocations.find(
-        a => a.channel === 'Video Ads',
+        (a) => a.channel === 'Video Ads'
       );
 
       expect(socialAllocation!.percentage).toBeGreaterThan(
-        videoAllocation!.percentage,
+        videoAllocation!.percentage
       );
     });
 
@@ -110,14 +110,14 @@ describe('CampaignService', () => {
       const result = service.calculateBudgetDistribution(input);
 
       const videoAllocation = result.allocations.find(
-        a => a.channel === 'Video Ads',
+        (a) => a.channel === 'Video Ads'
       );
       const displayAllocation = result.allocations.find(
-        a => a.channel === 'Display Ads',
+        (a) => a.channel === 'Display Ads'
       );
 
       expect(videoAllocation!.percentage).toBeGreaterThan(
-        displayAllocation!.percentage,
+        displayAllocation!.percentage
       );
     });
 
@@ -129,10 +129,10 @@ describe('CampaignService', () => {
 
       const result = service.calculateBudgetDistribution(input);
 
-      result.allocations.forEach(allocation => {
+      result.allocations.forEach((allocation) => {
         const expectedImpressions = (allocation.budget / allocation.cpm) * 1000;
         expect(allocation.estimatedImpressions).toBe(
-          Math.round(expectedImpressions),
+          Math.round(expectedImpressions)
         );
       });
     });
@@ -168,18 +168,17 @@ describe('CampaignService', () => {
       const channels = service.getChannelInfo();
 
       expect(channels).toHaveLength(3);
-      expect(channels.every(c => c.name && c.baseCpm && c.description)).toBe(
-        true,
+      expect(channels.every((c) => c.name && c.baseCpm && c.description)).toBe(
+        true
       );
     });
 
     it('should include strengths for each channel', () => {
       const channels = service.getChannelInfo();
 
-      channels.forEach(channel => {
+      channels.forEach((channel) => {
         expect(Array.isArray(channel.strengths)).toBe(true);
       });
     });
   });
 });
-

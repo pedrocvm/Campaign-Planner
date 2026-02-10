@@ -647,12 +647,13 @@ import { CHANNEL_CONFIGS, DEFAULT_CONSTRAINTS } from './config/campaign-config';
 
       .advanced-badge {
         margin-left: auto;
-        padding: 2px 8px;
-        background: var(--accent-primary);
-        color: white;
+        padding: 4px 12px;
+        background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
+        color: #ffffff !important;
         border-radius: var(--radius-full);
-        font-size: 0.7rem;
-        font-weight: 500;
+        font-size: 0.75rem;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
       }
 
       .form-row {
@@ -842,15 +843,12 @@ export class AppComponent implements OnInit, OnDestroy {
   selectedGoal: CampaignGoal = 'balanced';
   isLightTheme = false;
 
-  // Advanced Options State
   advancedState: AdvancedOptionsState = {
     globalMinPercent: DEFAULT_CONSTRAINTS.minPerChannel,
     globalMaxPercent: DEFAULT_CONSTRAINTS.maxPerChannel,
     channelSettings: [],
   };
   validationResult: ValidationResult | null = null;
-
-  // Video/Display slider
   videoDisplayBias = 0;
 
   goals = [
@@ -938,7 +936,6 @@ export class AppComponent implements OnInit, OnDestroy {
     if (savedTheme) {
       this.isLightTheme = savedTheme === 'light';
     } else {
-      // Check system preference
       this.isLightTheme = window.matchMedia(
         '(prefers-color-scheme: light)'
       ).matches;
@@ -960,10 +957,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   onSubmit(): void {
     if (this.budgetForm.valid) {
-      // Use frontend calculator
       this.calculateWithPlanner();
 
-      // Also call backend for comparison (optional, can be removed)
       const input: BudgetInput = this.budgetForm.value;
       this.campaignService
         .calculateDistribution(input)
@@ -982,7 +977,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.budgetForm.patchValue(examples[type]);
   }
 
-  // Advanced Options
   private initAdvancedState(): void {
     this.advancedState = {
       globalMinPercent: DEFAULT_CONSTRAINTS.minPerChannel,
@@ -1022,7 +1016,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   get hasCustomAdvancedSettings(): boolean {
-    // Check if any channel has overrides
     return this.advancedState.channelSettings.some(
       (c) =>
         !c.enabled ||
@@ -1040,10 +1033,8 @@ export class AppComponent implements OnInit, OnDestroy {
     );
   }
 
-  // Slider change handler (will be called from results component)
   onVideoDisplayBiasChange(bias: number): void {
     this.videoDisplayBias = bias;
-    // Recalculate with new bias
     if (this.plannerResult) {
       this.calculateWithPlanner();
     }
@@ -1054,7 +1045,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.plannerResult = this.plannerCalculator.calculatePlan(input);
   }
 
-  // Query params for shareable link
   private loadFromQueryParams(): void {
     const params = new URLSearchParams(window.location.search);
 
@@ -1086,7 +1076,6 @@ export class AppComponent implements OnInit, OnDestroy {
         this.videoDisplayBias = parseInt(slider, 10);
       }
 
-      // Auto-calculate if valid
       setTimeout(() => {
         if (this.budgetForm.valid) {
           this.onSubmit();

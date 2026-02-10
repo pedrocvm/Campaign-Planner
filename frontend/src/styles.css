@@ -961,6 +961,12 @@ input::placeholder {
   color: #64748b !important;
 }
 
+/* Advanced Badge - SEMPRE branco no fundo azul */
+.light-theme .advanced-badge {
+  background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
+  color: #ffffff !important;
+}
+
 .light-theme .btn.secondary {
   background: #f1f5f9 !important;
   color: #475569 !important;

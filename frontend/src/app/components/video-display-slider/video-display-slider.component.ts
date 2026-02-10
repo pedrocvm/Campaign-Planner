@@ -258,7 +258,6 @@ export class VideoDisplaySliderComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['value']) {
-      // Clamp value to range
       this.value = Math.max(-50, Math.min(50, this.value));
     }
   }
@@ -275,4 +274,5 @@ export class VideoDisplaySliderComponent implements OnChanges {
     this.valueChange.emit(0);
   }
 }
+
 

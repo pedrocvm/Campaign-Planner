@@ -19,9 +19,6 @@ import { CampaignGoal } from '../models/campaign.models';
   providedIn: 'root',
 })
 export class PlannerCalculatorService {
-  /**
-   * Validate input constraints before calculation
-   */
   validateConstraints(input: PlannerInput): ValidationResult {
     const errors: string[] = [];
     const warnings: string[] = [];
@@ -33,7 +30,6 @@ export class PlannerCalculatorService {
       return { isValid: false, errors, warnings };
     }
 
-    // Validate per-channel min <= max
     for (const channel of enabledChannels) {
       if (channel.minPercent > channel.maxPercent) {
         const config = getChannelById(channel.channelId);
@@ -43,7 +39,6 @@ export class PlannerCalculatorService {
       }
     }
 
-    // Sum of mins must be <= 100
     const sumMins = enabledChannels.reduce((acc, c) => acc + c.minPercent, 0);
     if (sumMins > 100) {
       errors.push(
@@ -51,7 +46,6 @@ export class PlannerCalculatorService {
       );
     }
 
-    // Sum of maxs must be >= 100
     const sumMaxs = enabledChannels.reduce((acc, c) => acc + c.maxPercent, 0);
     if (sumMaxs < 100) {
       errors.push(
@@ -59,12 +53,10 @@ export class PlannerCalculatorService {
       );
     }
 
-    // Budget validation
     if (input.totalBudget < 100) {
       errors.push('Minimum budget is $100');
     }
 
-    // Duration validation
     if (input.durationDays < 1 || input.durationDays > 365) {
       errors.push('Duration must be between 1 and 365 days');
     }
@@ -76,9 +68,6 @@ export class PlannerCalculatorService {
     };
   }
 
-  /**
-   * Main calculation method
-   */
   calculatePlan(input: PlannerInput): PlannerResult | null {
     const validation = this.validateConstraints(input);
     if (!validation.isValid) {
@@ -87,10 +76,8 @@ export class PlannerCalculatorService {
 
     const enabledChannels = input.channelSettings.filter((c) => c.enabled);
 
-    // Step 1: Calculate scores for each channel
     const channelScores = this.calculateChannelScores(enabledChannels, input.goal);
 
-    // Step 2: Apply allocation algorithm
     let allocations = this.distributeByScore(
       enabledChannels,
       channelScores,
@@ -98,7 +85,6 @@ export class PlannerCalculatorService {
       input.durationDays
     );
 
-    // Step 3: Apply Video/Display bias if set
     if (input.videoDisplayBias && input.videoDisplayBias !== 0) {
       allocations = this.applyVideoDisplayBias(
         allocations,
@@ -107,13 +93,10 @@ export class PlannerCalculatorService {
       );
     }
 
-    // Step 4: Calculate metrics for each allocation
     allocations = this.calculateMetrics(allocations, input.durationDays);
 
-    // Step 5: Generate insights
     const insights = this.generateInsights(allocations, input);
 
-    // Step 6: Build summary
     const summary = this.buildSummary(allocations, input);
 
     return {
@@ -124,9 +107,6 @@ export class PlannerCalculatorService {
     };
   }
 
-  /**
-   * Calculate score for each channel based on goal
-   */
   private calculateChannelScores(
     channels: ChannelSettings[],
     goal: CampaignGoal
@@ -140,9 +120,6 @@ export class PlannerCalculatorService {
 
       const cpm = channel.cpmOverride ?? config.defaultCPM;
 
-      // Score formula:
-      // - CPM component: 1/CPM (lower CPM = higher score)
-      // - Engagement component: engagementWeight / CPM
       const cpmScore = (1 / cpm) * weights.cpmWeight;
       const engScore = (config.engagementWeight / cpm) * weights.engagementWeight;
 
@@ -152,16 +129,12 @@ export class PlannerCalculatorService {
     return scores;
   }
 
-  /**
-   * Distribute budget proportionally by score, respecting min/max
-   */
   private distributeByScore(
     channels: ChannelSettings[],
     scores: Map<string, number>,
     totalBudget: number,
     durationDays: number
   ): ChannelAllocationResult[] {
-    // Step 1: Assign minimums to all channels
     const allocations: ChannelAllocationResult[] = channels.map((channel) => {
       const config = getChannelById(channel.channelId);
       return {
@@ -179,11 +152,9 @@ export class PlannerCalculatorService {
       };
     });
 
-    // Step 2: Calculate remaining % to distribute
     let usedPercent = allocations.reduce((acc, a) => acc + a.percentage, 0);
     let remainingPercent = 100 - usedPercent;
 
-    // Step 3: Distribute remaining proportionally by score
     const totalScore = allocations.reduce((acc, a) => acc + a.score, 0);
 
     while (remainingPercent > 0.01) {
@@ -198,7 +169,6 @@ export class PlannerCalculatorService {
           continue;
         }
 
-        // Proportional share based on score
         const share = totalScore > 0 ? (alloc.score / totalScore) * remainingPercent : remainingPercent / allocations.length;
         const toAdd = Math.min(share, maxAvailable);
 
@@ -214,11 +184,9 @@ export class PlannerCalculatorService {
 
       remainingPercent -= distributed;
 
-      // Safety: prevent infinite loop
       if (distributed < 0.01) break;
     }
 
-    // Step 4: Normalize to exactly 100%
     const total = allocations.reduce((acc, a) => acc + a.percentage, 0);
     if (total > 0) {
       const factor = 100 / total;
@@ -227,7 +195,6 @@ export class PlannerCalculatorService {
       });
     }
 
-    // Step 5: Calculate budgets
     allocations.forEach((a) => {
       a.budget = Math.round((a.percentage / 100) * totalBudget * 100) / 100;
       a.dailyBudget = Math.round((a.budget / durationDays) * 100) / 100;
@@ -236,9 +203,6 @@ export class PlannerCalculatorService {
     return allocations;
   }
 
-  /**
-   * Apply Video/Display slider bias
-   */
   private applyVideoDisplayBias(
     allocations: ChannelAllocationResult[],
     channels: ChannelSettings[],
@@ -254,14 +218,11 @@ export class PlannerCalculatorService {
 
     if (!videoSettings || !displaySettings) return allocations;
 
-    // Bias: positive = more video, negative = more display
-    // Range: -50 to +50, translates to up to 25% shift
-    const shift = (bias / 50) * 25; // Max 25% shift
+    const shift = (bias / 50) * 25;
 
     let newVideoPercent = videoAlloc.percentage + shift;
     let newDisplayPercent = displayAlloc.percentage - shift;
 
-    // Clamp to min/max
     newVideoPercent = Math.max(
       videoSettings.minPercent,
       Math.min(videoSettings.maxPercent, newVideoPercent)
@@ -271,13 +232,11 @@ export class PlannerCalculatorService {
       Math.min(displaySettings.maxPercent, newDisplayPercent)
     );
 
-    // Calculate actual shift after clamping
     const actualShift = newVideoPercent - videoAlloc.percentage;
 
     videoAlloc.percentage = newVideoPercent;
     displayAlloc.percentage = newDisplayPercent;
 
-    // Recalculate budgets
     const totalBudget = allocations.reduce((acc, a) => acc + a.budget, 0);
     const durationDays = allocations[0].budget / allocations[0].dailyBudget;
 
@@ -289,35 +248,25 @@ export class PlannerCalculatorService {
     return allocations;
   }
 
-  /**
-   * Calculate impressions and reach for each allocation
-   */
   private calculateMetrics(
     allocations: ChannelAllocationResult[],
     durationDays: number
   ): ChannelAllocationResult[] {
     allocations.forEach((alloc) => {
-      // impressions = (budget / CPM) * 1000
       alloc.impressions = Math.round((alloc.budget / alloc.cpmUsed) * 1000);
       alloc.dailyImpressions = Math.round(alloc.impressions / durationDays);
-
-      // reach = impressions / frequency
       alloc.reach = Math.round(alloc.impressions / alloc.frequencyUsed);
     });
 
     return allocations;
   }
 
-  /**
-   * Generate insights based on allocation results
-   */
   private generateInsights(
     allocations: ChannelAllocationResult[],
     input: PlannerInput
   ): PlannerInsight[] {
     const insights: PlannerInsight[] = [];
 
-    // Check for high concentration
     for (const alloc of allocations) {
       if (alloc.percentage > WARNING_THRESHOLDS.highConcentration) {
         const config = getChannelById(alloc.channelId);
@@ -330,7 +279,6 @@ export class PlannerCalculatorService {
       }
     }
 
-    // Check video allocation for engagement goal
     if (input.goal === 'engagement') {
       const videoAlloc = allocations.find((a) => a.channelId === 'video');
       if (videoAlloc && videoAlloc.percentage < WARNING_THRESHOLDS.lowVideoForEngagement) {
@@ -343,7 +291,6 @@ export class PlannerCalculatorService {
       }
     }
 
-    // Check daily spend
     const dailyBudget = input.totalBudget / input.durationDays;
     if (dailyBudget < WARNING_THRESHOLDS.lowDailySpend) {
       insights.push({
@@ -354,7 +301,6 @@ export class PlannerCalculatorService {
       });
     }
 
-    // Check constrained allocations
     const constrainedChannels = allocations.filter((a) => a.isConstrained !== 'none');
     if (constrainedChannels.length > 0) {
       const constrained = constrainedChannels
@@ -374,9 +320,6 @@ export class PlannerCalculatorService {
     return insights;
   }
 
-  /**
-   * Build summary from allocations
-   */
   private buildSummary(
     allocations: ChannelAllocationResult[],
     input: PlannerInput
@@ -397,4 +340,3 @@ export class PlannerCalculatorService {
     };
   }
 }
-

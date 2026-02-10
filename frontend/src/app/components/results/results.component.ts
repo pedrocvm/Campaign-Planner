@@ -1259,17 +1259,11 @@ export class ResultsComponent implements OnInit {
   @Output() shareLinkRequested = new EventEmitter<void>();
 
   selectedPeriod: ViewPeriod = 'total';
-
-  // Modal states
   showHowWeCalculate = false;
   showCompare = false;
-
-  // Toast state
   toastMessage = '';
   toastVisible = false;
   toastType: 'success' | 'warning' | 'info' = 'success';
-
-  // Saved scenarios for comparison (multiple)
   savedScenarios: Array<{
     name: string;
     result: PlannerResult;
@@ -1285,7 +1279,6 @@ export class ResultsComponent implements OnInit {
     'var(--channel-social)',
   ];
 
-  // Unified data accessors - prioritize plannerResult, fallback to result
   get allocations(): any[] {
     if (this.plannerResult) {
       return this.plannerResult.allocations.map((a) => ({
@@ -1492,18 +1485,15 @@ export class ResultsComponent implements OnInit {
     window.print();
   }
 
-  // Load saved scenarios on init
   ngOnInit(): void {
     this.loadSavedScenarios();
   }
 
-  // Slider methods
   onSliderChange(value: number): void {
     this.videoDisplayBias = value;
     this.biasChange.emit(value);
   }
 
-  // How We Calculate Modal
   openHowWeCalculate(): void {
     this.showHowWeCalculate = true;
   }
@@ -1516,7 +1506,6 @@ export class ResultsComponent implements OnInit {
     this.showCompare = false;
   }
 
-  // Toast methods
   showToast(
     message: string,
     type: 'success' | 'warning' | 'info' = 'success'
@@ -1544,7 +1533,6 @@ export class ResultsComponent implements OnInit {
     }
   }
 
-  // Save/Load Scenarios (multiple)
   saveScenario(): void {
     const dataToSave =
       this.plannerResult || this.createPlannerResultFromResult();
@@ -1555,7 +1543,6 @@ export class ResultsComponent implements OnInit {
         result: dataToSave,
         savedAt: new Date(),
       });
-      // Keep only last 5 scenarios
       if (this.savedScenarios.length > 5) {
         this.savedScenarios.shift();
       }
@@ -1571,7 +1558,6 @@ export class ResultsComponent implements OnInit {
 
   private createPlannerResultFromResult(): PlannerResult | null {
     if (!this.result) return null;
-    // Convert backend result to planner result format for comparison
     return {
       allocations: this.result.allocations.map((a) => ({
         channelId: a.channel.toLowerCase().replace(' ads', ''),
@@ -1617,7 +1603,7 @@ export class ResultsComponent implements OnInit {
 
   clearSavedScenario(): void {
     if (this.savedScenarios.length > 0) {
-      this.savedScenarios.pop(); // Remove last one
+      this.savedScenarios.pop();
       this.persistScenarios();
       if (this.savedScenarios.length === 0) {
         this.showCompare = false;
@@ -1656,7 +1642,6 @@ export class ResultsComponent implements OnInit {
     this.selectedSavedIndex = index;
   }
 
-  // Compare - with feedback when no saved scenario
   openCompare(): void {
     if (!this.hasSavedScenario) {
       this.showToast('No saved scenario yet. Save one first!', 'warning');
@@ -1665,13 +1650,11 @@ export class ResultsComponent implements OnInit {
     this.showCompare = true;
   }
 
-  // Shareable Link
   copyShareableLink(): void {
     this.shareLinkRequested.emit();
     this.showToast('Link copied to clipboard!', 'success');
   }
 
-  // Period selection methods
   selectPeriod(period: ViewPeriod): void {
     this.selectedPeriod = period;
   }
@@ -1809,11 +1792,8 @@ export class ResultsComponent implements OnInit {
 
   getPeriodReach(): number {
     if (!this.summary) return 0;
-    // Note: Reach doesn't simply divide - we estimate based on overlap
-    // Using a decay factor for shorter periods as reach accumulates over time
     const divisor = this.getPeriodDivisor();
     if (divisor === 1) return this.summary.totalReach;
-    // Apply diminishing returns - shorter periods have proportionally less reach
     const reachFactor = Math.pow(1 / divisor, 0.7);
     return this.summary.totalReach * reachFactor;
   }

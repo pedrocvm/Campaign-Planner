@@ -2,23 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { BudgetInputDto, CampaignGoal } from './dto/budget-input.dto';
 import { BudgetResultDto, ChannelAllocationDto, BudgetSummaryDto } from './dto/budget-result.dto';
 
-/**
- * Channel configuration with market-based CPM values and characteristics.
- * 
- * CPM (Cost Per Mille) values are based on industry averages:
- * - Video: Premium inventory, higher engagement, $15-25 CPM
- * - Display: Standard inventory, broad reach, $5-10 CPM  
- * - Social: Volume-based, highest reach, $3-8 CPM
- * 
- * Reach factor: Percentage of impressions that translate to unique users
- * (accounts for frequency capping and user overlap)
- */
 interface ChannelConfig {
   name: string;
   baseCpm: number;
-  reachFactor: number; // How efficiently impressions convert to unique reach
-  engagementWeight: number; // Relative engagement quality (1-10)
-  reachWeight: number; // Relative reach efficiency (1-10)
+  reachFactor: number;
+  engagementWeight: number;
+  reachWeight: number;
   description: string;
 }
 
@@ -26,7 +15,7 @@ const CHANNEL_CONFIGS: ChannelConfig[] = [
   {
     name: 'Video Ads',
     baseCpm: 20,
-    reachFactor: 0.65, // Higher frequency, lower unique reach
+    reachFactor: 0.65,
     engagementWeight: 9,
     reachWeight: 5,
     description: 'Premium video inventory with high engagement and brand impact',
@@ -34,7 +23,7 @@ const CHANNEL_CONFIGS: ChannelConfig[] = [
   {
     name: 'Display Ads',
     baseCpm: 7.5,
-    reachFactor: 0.45, // Medium overlap, moderate reach
+    reachFactor: 0.45,
     engagementWeight: 5,
     reachWeight: 7,
     description: 'Broad display network with balanced reach and targeting',
@@ -42,7 +31,7 @@ const CHANNEL_CONFIGS: ChannelConfig[] = [
   {
     name: 'Social Ads',
     baseCpm: 5,
-    reachFactor: 0.55, // Good unique user identification
+    reachFactor: 0.55,
     engagementWeight: 6,
     reachWeight: 9,
     description: 'Social platforms with maximum reach and audience targeting',
@@ -52,16 +41,6 @@ const CHANNEL_CONFIGS: ChannelConfig[] = [
 @Injectable()
 export class CampaignService {
   
-  /**
-   * Calculates optimal budget distribution across advertising channels.
-   * 
-   * Algorithm overview:
-   * 1. Calculate efficiency score for each channel based on goal
-   * 2. Normalize scores to determine optimal percentages
-   * 3. Apply min/max constraints
-   * 4. Redistribute excess/deficit proportionally
-   * 5. Calculate expected reach and impressions
-   */
   calculateBudgetDistribution(input: BudgetInputDto): BudgetResultDto {
     const {
       totalBudget,
@@ -71,31 +50,26 @@ export class CampaignService {
       maxChannelPercentage = 60,
     } = input;
 
-    // Step 1: Calculate raw efficiency scores based on goal
     const channelScores = this.calculateChannelScores(goal);
     
-    // Step 2: Normalize to percentages
     const totalScore = channelScores.reduce((sum, s) => sum + s.score, 0);
     const rawAllocations = channelScores.map(cs => ({
       ...cs,
       rawPercentage: (cs.score / totalScore) * 100,
     }));
 
-    // Step 3 & 4: Apply constraints and redistribute
     const constrainedAllocations = this.applyConstraints(
       rawAllocations,
       minChannelPercentage,
       maxChannelPercentage,
     );
 
-    // Step 5: Calculate final allocations with reach/impressions
     const channelAllocations = this.buildChannelAllocations(
       constrainedAllocations,
       totalBudget,
       durationDays,
     );
 
-    // Build summary
     const summary = this.buildSummary(
       channelAllocations,
       totalBudget,
@@ -110,13 +84,6 @@ export class CampaignService {
     };
   }
 
-  /**
-   * Calculate efficiency scores for each channel based on campaign goal.
-   * 
-   * For REACH: Prioritize channels with low CPM and high reach factor
-   * For ENGAGEMENT: Prioritize channels with high engagement quality
-   * For BALANCED: Use weighted average of both metrics
-   */
   private calculateChannelScores(goal: CampaignGoal): Array<{
     config: ChannelConfig;
     score: number;
@@ -124,21 +91,17 @@ export class CampaignService {
     return CHANNEL_CONFIGS.map(config => {
       let score: number;
       
-      // Base efficiency: impressions per dollar * reach factor
       const costEfficiency = (1000 / config.baseCpm) * config.reachFactor;
       
       switch (goal) {
         case CampaignGoal.REACH:
-          // Maximize reach: weight heavily toward reach efficiency
           score = config.reachWeight * 2 + costEfficiency * 0.5;
           break;
         case CampaignGoal.ENGAGEMENT:
-          // Maximize engagement: weight heavily toward engagement quality
           score = config.engagementWeight * 2 + costEfficiency * 0.3;
           break;
         case CampaignGoal.BALANCED:
         default:
-          // Balanced: equal weight to reach, engagement, and cost
           score = (config.reachWeight + config.engagementWeight) * 0.5 + costEfficiency * 0.5;
           break;
       }
@@ -147,10 +110,6 @@ export class CampaignService {
     });
   }
 
-  /**
-   * Apply min/max percentage constraints and redistribute budget.
-   * Uses iterative redistribution to ensure constraints are met.
-   */
   private applyConstraints(
     allocations: Array<{ config: ChannelConfig; score: number; rawPercentage: number }>,
     minPct: number,
@@ -161,7 +120,6 @@ export class CampaignService {
       percentage: a.rawPercentage,
     }));
 
-    // Iteratively adjust until all constraints are met
     let iterations = 0;
     const maxIterations = 10;
 
@@ -170,7 +128,6 @@ export class CampaignService {
       let deficit = 0;
       let surplus = 0;
 
-      // Find items that need adjustment
       result = result.map(item => {
         if (item.percentage < minPct) {
           deficit += minPct - item.percentage;
@@ -187,7 +144,6 @@ export class CampaignService {
 
       if (!needsAdjustment) break;
 
-      // Redistribute surplus/deficit among flexible items
       const flexibleItems = result.filter(
         item => item.percentage > minPct && item.percentage < maxPct,
       );
@@ -208,7 +164,6 @@ export class CampaignService {
       iterations++;
     }
 
-    // Normalize to exactly 100%
     const totalPct = result.reduce((sum, r) => sum + r.percentage, 0);
     if (Math.abs(totalPct - 100) > 0.01) {
       const factor = 100 / totalPct;
@@ -221,9 +176,6 @@ export class CampaignService {
     return result;
   }
 
-  /**
-   * Build detailed channel allocation objects with all metrics.
-   */
   private buildChannelAllocations(
     allocations: Array<{ config: ChannelConfig; percentage: number }>,
     totalBudget: number,
@@ -233,19 +185,15 @@ export class CampaignService {
       const budget = (totalBudget * percentage) / 100;
       const dailyBudget = budget / durationDays;
       
-      // Impressions = (Budget / CPM) * 1000
       const estimatedImpressions = Math.round((budget / config.baseCpm) * 1000);
       const dailyImpressions = Math.round(estimatedImpressions / durationDays);
       
-      // Reach = Impressions * Reach Factor (accounts for frequency)
       const estimatedReach = Math.round(estimatedImpressions * config.reachFactor);
       
-      // Efficiency score combines cost efficiency and reach quality
       const efficiencyScore = Math.round(
         ((1000 / config.baseCpm) * config.reachFactor) / 10,
       );
 
-      // Generate insight based on allocation
       const insight = this.generateChannelInsight(config, percentage, budget);
 
       return {
@@ -263,9 +211,6 @@ export class CampaignService {
     });
   }
 
-  /**
-   * Generate contextual insight for each channel allocation.
-   */
   private generateChannelInsight(
     config: ChannelConfig,
     percentage: number,
@@ -283,9 +228,6 @@ export class CampaignService {
     return `Minimal allocation to ${config.name}. Consider increasing if ${config.name.toLowerCase()} aligns with your audience.`;
   }
 
-  /**
-   * Build campaign summary with aggregate metrics and recommendations.
-   */
   private buildSummary(
     allocations: ChannelAllocationDto[],
     totalBudget: number,
@@ -301,7 +243,6 @@ export class CampaignService {
       0,
     );
     
-    // Weighted average CPM
     const weightedCpm = allocations.reduce(
       (sum, a) => sum + (a.cpm * a.percentage / 100),
       0,
@@ -326,9 +267,6 @@ export class CampaignService {
     };
   }
 
-  /**
-   * Generate overall campaign recommendation based on parameters.
-   */
   private generateCampaignRecommendation(
     totalBudget: number,
     durationDays: number,
@@ -340,14 +278,12 @@ export class CampaignService {
 
     let recommendation = '';
 
-    // Budget assessment
     if (dailyBudget < 100) {
       recommendation += 'Your daily budget is relatively low. Consider concentrating on fewer channels for better impact. ';
     } else if (dailyBudget > 1000) {
       recommendation += 'Strong daily budget allows for broad channel diversification. ';
     }
 
-    // Goal-specific advice
     switch (goal) {
       case CampaignGoal.REACH:
         recommendation += 'Optimized for maximum reach - social and display channels are prioritized for broader audience exposure.';
@@ -363,9 +299,6 @@ export class CampaignService {
     return recommendation;
   }
 
-  /**
-   * Get available channel configurations for frontend display.
-   */
   getChannelInfo(): Array<{
     name: string;
     baseCpm: number;
@@ -392,4 +325,3 @@ export class CampaignService {
     return strengths;
   }
 }
-
