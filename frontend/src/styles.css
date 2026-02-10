@@ -1,10 +1,10 @@
 /* ========================================
    Campaign Budget Optimizer - Global Styles
-   Design: Dark mode with vibrant accents
+   Design: Dark/Light mode with vibrant accents
    ======================================== */
 
 :root {
-  /* Color palette - inspired by financial dashboards */
+  /* Color palette - Dark theme (default) */
   --bg-primary: #0a0e17;
   --bg-secondary: #111827;
   --bg-card: #1a2234;
@@ -59,6 +59,38 @@
   --transition-slow: 400ms ease;
 }
 
+/* Light theme - applied via .light-theme class */
+.light-theme {
+  --bg-primary: #f1f5f9;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8fafc;
+  
+  /* Strong contrast text colors */
+  --text-primary: #1e293b;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  
+  /* Adjusted accent colors for light bg */
+  --accent-primary: #2563eb;
+  --accent-secondary: #7c3aed;
+  --accent-success: #059669;
+  --accent-warning: #d97706;
+  --accent-danger: #dc2626;
+  
+  /* Channel colors - slightly darker for light mode */
+  --channel-video: #db2777;
+  --channel-display: #0891b2;
+  --channel-social: #16a34a;
+  
+  --border-color: #cbd5e1;
+  --border-glow: rgba(37, 99, 235, 0.25);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.12);
+  --shadow-glow: 0 0 30px rgba(37, 99, 235, 0.15);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -78,9 +110,10 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color var(--transition-base), color var(--transition-base);
 }
 
-/* Background gradient effect */
+/* Background gradient effect - Dark mode */
 body::before {
   content: '';
   position: fixed;
@@ -93,6 +126,449 @@ body::before {
     radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.06) 0%, transparent 50%);
   pointer-events: none;
   z-index: -1;
+  transition: background var(--transition-base);
+}
+
+/* Background gradient effect - Light mode */
+.light-theme body::before,
+.light-theme::before {
+  background: 
+    radial-gradient(ellipse at 20% 20%, rgba(37, 99, 235, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(124, 58, 237, 0.04) 0%, transparent 50%);
+}
+
+/* ============================================
+   LIGHT THEME - Complete Override
+   ============================================ */
+
+/* Force background on body */
+.light-theme,
+.light-theme body {
+  background: #f1f5f9 !important;
+}
+
+/* ALL text must be dark */
+.light-theme,
+.light-theme * {
+  color: #1e293b;
+}
+
+.light-theme h1,
+.light-theme h2,
+.light-theme h3,
+.light-theme h4,
+.light-theme h5,
+.light-theme h6,
+.light-theme strong,
+.light-theme b,
+.light-theme label,
+.light-theme .logo-text h1,
+.light-theme .card-header h2,
+.light-theme .goal-label,
+.light-theme .example-name,
+.light-theme .help-text strong {
+  color: #0f172a !important;
+}
+
+.light-theme p,
+.light-theme span,
+.light-theme .tagline,
+.light-theme .card-subtitle,
+.light-theme .goal-description,
+.light-theme .input-hint,
+.light-theme .examples-label,
+.light-theme .example-detail,
+.light-theme .help-text p,
+.light-theme .advanced-hint,
+.light-theme .advanced-toggle {
+  color: #475569 !important;
+}
+
+/* Header */
+.light-theme .header {
+  background: #ffffff !important;
+  border-bottom-color: #e2e8f0 !important;
+}
+
+/* Cards */
+.light-theme .card {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Form inputs */
+.light-theme input,
+.light-theme select,
+.light-theme textarea {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.light-theme input:focus,
+.light-theme select:focus,
+.light-theme textarea:focus {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+}
+
+.light-theme input::placeholder {
+  color: #94a3b8 !important;
+}
+
+.light-theme .input-prefix {
+  color: #64748b !important;
+}
+
+/* Goal buttons */
+.light-theme .goal-btn {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+.light-theme .goal-btn:hover {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+.light-theme .goal-btn.active {
+  background: #eff6ff !important;
+  border-color: #2563eb !important;
+}
+
+/* Help card - darker background */
+.light-theme .help-card {
+  background: #e0e7ff !important;
+  border-color: #c7d2fe !important;
+}
+
+.light-theme .help-card h3 {
+  color: #1e1b4b !important;
+}
+
+.light-theme .help-number {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+}
+
+/* Status indicator */
+.light-theme .status-indicator.connected {
+  background: #dcfce7 !important;
+  color: #166534 !important;
+  border: 1px solid #86efac !important;
+}
+
+.light-theme .status-indicator.connected .status-dot {
+  background: #22c55e !important;
+}
+
+.light-theme .status-indicator.connected .status-text {
+  color: #166534 !important;
+}
+
+.light-theme .status-indicator.disconnected {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+  border: 1px solid #fca5a5 !important;
+}
+
+.light-theme .status-indicator.disconnected .status-dot {
+  background: #ef4444 !important;
+}
+
+.light-theme .status-indicator.disconnected .status-text {
+  color: #991b1b !important;
+}
+
+/* Theme toggle */
+.light-theme .theme-toggle {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+/* Example buttons */
+.light-theme .example-btn {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+.light-theme .example-btn:hover {
+  background: #f8fafc !important;
+  border-color: #2563eb !important;
+}
+
+/* Advanced options */
+.light-theme .advanced-options {
+  background: #f8fafc !important;
+}
+
+/* Footer */
+.light-theme .footer {
+  background: #ffffff !important;
+  border-top-color: #e2e8f0 !important;
+  color: #64748b !important;
+}
+
+/* Results components */
+.light-theme .success-header {
+  background: linear-gradient(135deg, #dcfce7, #dbeafe) !important;
+}
+
+.light-theme .success-text h2,
+.light-theme .success-text p {
+  color: #1e293b !important;
+}
+
+.light-theme .summary-item {
+  background: #f8fafc !important;
+}
+
+.light-theme .summary-item.main {
+  background: linear-gradient(135deg, #dbeafe, #e0e7ff) !important;
+}
+
+.light-theme .summary-label {
+  color: #475569 !important;
+}
+
+.light-theme .summary-value {
+  color: #0f172a !important;
+}
+
+.light-theme .summary-value.big {
+  color: #2563eb !important;
+}
+
+.light-theme .reach-label {
+  color: #475569 !important;
+}
+
+.light-theme .reach-value {
+  color: #059669 !important;
+}
+
+.light-theme .distribution-subtitle {
+  color: #475569 !important;
+}
+
+.light-theme .legend-item {
+  background: #f8fafc !important;
+}
+
+.light-theme .legend-channel {
+  color: #0f172a !important;
+}
+
+.light-theme .legend-percent {
+  color: #0f172a !important;
+}
+
+.light-theme .legend-amount {
+  color: #475569 !important;
+}
+
+.light-theme .metric {
+  background: #f8fafc !important;
+}
+
+.light-theme .metric-value {
+  color: #0f172a !important;
+}
+
+.light-theme .metric-label {
+  color: #64748b !important;
+}
+
+.light-theme .quality-label {
+  color: #475569 !important;
+}
+
+.light-theme .quality-bar {
+  background: #e2e8f0 !important;
+}
+
+.light-theme .quality-text {
+  color: #059669 !important;
+}
+
+.light-theme .channel-insight {
+  background: #eff6ff !important;
+  border-left-color: #2563eb !important;
+}
+
+.light-theme .channel-insight p {
+  color: #334155 !important;
+}
+
+.light-theme .recommendation-card {
+  background: linear-gradient(135deg, #f3e8ff, #dbeafe) !important;
+  border-color: #c4b5fd !important;
+}
+
+.light-theme .recommendation-text {
+  color: #334155 !important;
+}
+
+.light-theme .action-btn.secondary {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+.light-theme .disclaimer {
+  background: #fef3c7 !important;
+  border-left-color: #d97706 !important;
+}
+
+.light-theme .disclaimer p {
+  color: #92400e !important;
+}
+
+.light-theme .channels-preview {
+  background: #f8fafc !important;
+}
+
+.light-theme .channels-preview h4 {
+  color: #475569 !important;
+}
+
+.light-theme .channel-info strong {
+  color: #0f172a !important;
+}
+
+.light-theme .channel-info span {
+  color: #64748b !important;
+}
+
+.light-theme .empty-card h3 {
+  color: #0f172a !important;
+}
+
+.light-theme .empty-card > p {
+  color: #475569 !important;
+}
+
+.light-theme .loading-content h3 {
+  color: #0f172a !important;
+}
+
+.light-theme .loading-content p {
+  color: #475569 !important;
+}
+
+.light-theme .loading-spinner {
+  border-color: #e2e8f0 !important;
+  border-top-color: #2563eb !important;
+}
+
+/* Submit button - Light theme */
+.light-theme .submit-btn {
+  background: linear-gradient(135deg, #2563eb, #4f46e5) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4) !important;
+}
+
+.light-theme .submit-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1d4ed8, #4338ca) !important;
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5) !important;
+  transform: translateY(-2px);
+}
+
+.light-theme .submit-btn .btn-content,
+.light-theme .submit-btn .btn-icon,
+.light-theme .submit-btn span {
+  color: #ffffff !important;
+}
+
+.light-theme .submit-btn:disabled {
+  background: #cbd5e1 !important;
+  box-shadow: none !important;
+  color: #64748b !important;
+}
+
+.light-theme .submit-btn:disabled span {
+  color: #64748b !important;
+}
+
+/* Channel cards header text - keep white on colored backgrounds */
+.light-theme .channel-header h4,
+.light-theme .channel-title h4,
+.light-theme .channel-type,
+.light-theme .investment-amount,
+.light-theme .investment-percent {
+  color: #ffffff !important;
+}
+
+/* Channel cards body */
+.light-theme .channel-body {
+  background: #ffffff !important;
+}
+
+.light-theme .channels-section > h3 {
+  color: #0f172a !important;
+}
+
+/* Distribution card */
+.light-theme .distribution-card h3 {
+  color: #0f172a !important;
+}
+
+.light-theme .bar-label {
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+}
+
+/* Section headers */
+.light-theme .channels-section h3,
+.light-theme .summary-card h3,
+.light-theme .distribution-card h3,
+.light-theme .recommendation-header h3 {
+  color: #0f172a !important;
+}
+
+/* Fix all spans and small text */
+.light-theme .theme-label {
+  color: #1e293b !important;
+}
+
+.light-theme .theme-icon {
+  color: #1e293b !important;
+}
+
+/* Divider */
+.light-theme .divider {
+  background: #e2e8f0 !important;
+}
+
+/* Error message */
+.light-theme .error-message {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+}
+
+.light-theme .error-message span {
+  color: #991b1b !important;
+}
+
+/* Error card */
+.light-theme .error-card {
+  background: #fef2f2 !important;
+  border-color: #fecaca !important;
+}
+
+.light-theme .error-card h3 {
+  color: #dc2626 !important;
+}
+
+.light-theme .error-card p {
+  color: #7f1d1d !important;
+}
+
+.light-theme .retry-btn {
+  background: #dc2626 !important;
+  color: #ffffff !important;
 }
 
 /* Typography */
@@ -150,7 +626,7 @@ input::placeholder {
   color: var(--text-muted);
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - Dark mode */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -172,7 +648,7 @@ input::placeholder {
 /* Selection */
 ::selection {
   background: var(--accent-primary);
-  color: var(--text-primary);
+  color: white;
 }
 
 /* Utility classes */
@@ -242,3 +718,340 @@ input::placeholder {
   border-radius: var(--radius-sm);
 }
 
+/* Period Selector - Light Theme Specific */
+.light-theme .period-selector-card {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(124, 58, 237, 0.08)) !important;
+  border-color: rgba(37, 99, 235, 0.2) !important;
+}
+
+.light-theme .period-header h3 {
+  color: #1e293b !important;
+}
+
+.light-theme .period-subtitle {
+  color: #475569 !important;
+}
+
+.light-theme .period-tab {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+.light-theme .period-tab:hover {
+  border-color: #2563eb !important;
+  background: #f8fafc !important;
+}
+
+.light-theme .period-tab.active {
+  background: linear-gradient(135deg, #2563eb, #7c3aed) !important;
+  border-color: transparent !important;
+  color: white !important;
+}
+
+.light-theme .tab-label {
+  color: inherit !important;
+}
+
+.light-theme .period-badge {
+  background: linear-gradient(135deg, #2563eb, #7c3aed) !important;
+  color: white !important;
+}
+
+.light-theme .summary-header-row h3 {
+  color: #1e293b !important;
+}
+
+.light-theme .comparison-note {
+  background: #f1f5f9 !important;
+}
+
+.light-theme .comparison-note p {
+  color: #475569 !important;
+}
+
+.light-theme .legend-period {
+  color: #64748b !important;
+}
+
+/* Modal Light Theme Fixes */
+.light-theme .modal-overlay {
+  background: rgba(0, 0, 0, 0.5) !important;
+}
+
+.light-theme .modal-content {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15) !important;
+}
+
+.light-theme .modal-header {
+  border-bottom-color: #e2e8f0 !important;
+}
+
+.light-theme .modal-header h2 {
+  color: #1e293b !important;
+}
+
+.light-theme .modal-body {
+  color: #334155 !important;
+}
+
+.light-theme .modal-body h3 {
+  color: #1e293b !important;
+  font-weight: 700 !important;
+}
+
+.light-theme .modal-body h4 {
+  color: #1e293b !important;
+  font-weight: 600 !important;
+}
+
+.light-theme .comparison-header span {
+  color: #64748b !important;
+}
+
+.light-theme .modal-footer {
+  border-top-color: #e2e8f0 !important;
+}
+
+.light-theme .comparison-row {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.light-theme .comparison-row span {
+  color: #334155 !important;
+}
+
+.light-theme .comparison-row .saved-value {
+  color: #6d28d9 !important;
+}
+
+.light-theme .comparison-row .current-value {
+  color: #1d4ed8 !important;
+}
+
+.light-theme .comparison-row.highlight {
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0.1), rgba(124, 58, 237, 0.1)) !important;
+  border: 1px solid rgba(99, 102, 241, 0.3) !important;
+}
+
+.light-theme .row-label {
+  color: #1e293b !important;
+}
+
+.light-theme .saved-value {
+  color: #6d28d9 !important;
+  font-weight: 600 !important;
+}
+
+.light-theme .current-value {
+  color: #1d4ed8 !important;
+  font-weight: 600 !important;
+}
+
+.light-theme .diff-value {
+  color: #475569 !important;
+  font-weight: 600 !important;
+}
+
+.light-theme .diff-value.positive {
+  color: #059669 !important;
+}
+
+.light-theme .diff-value.negative {
+  color: #dc2626 !important;
+}
+
+.light-theme .scenario-label {
+  color: #64748b !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  font-size: 0.7rem !important;
+  letter-spacing: 0.05em !important;
+}
+
+.light-theme .scenario-label.saved {
+  color: #6d28d9 !important;
+}
+
+.light-theme .scenario-label.current {
+  color: #1d4ed8 !important;
+}
+
+.light-theme .scenario-label.diff {
+  color: #475569 !important;
+}
+
+.light-theme .channel-row {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.light-theme .channel-row span {
+  color: #334155 !important;
+}
+
+.light-theme .channel-percentage {
+  color: #1e293b !important;
+  font-weight: 700 !important;
+}
+
+.light-theme .channel-name {
+  color: #1e293b !important;
+}
+
+.light-theme .legend {
+  background: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+}
+
+.light-theme .legend-item {
+  color: #1e293b !important;
+  font-weight: 500 !important;
+}
+
+.light-theme .legend-dot.saved {
+  background: #7c3aed !important;
+}
+
+.light-theme .legend-dot.current {
+  background: #2563eb !important;
+}
+
+.light-theme .channel-diff {
+  color: #475569 !important;
+  font-weight: 700 !important;
+}
+
+.light-theme .close-btn {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+}
+
+.light-theme .close-btn:hover {
+  background: #dc2626 !important;
+  color: white !important;
+}
+
+/* Period Tabs in light theme */
+.light-theme .period-tab {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+.light-theme .period-tab:hover {
+  background: #f8fafc !important;
+  border-color: #2563eb !important;
+}
+
+.light-theme .period-tab.active {
+  background: linear-gradient(135deg, #2563eb, #7c3aed) !important;
+  border-color: transparent !important;
+  color: white !important;
+}
+
+.light-theme .period-tab .tab-label {
+  color: inherit !important;
+}
+
+.light-theme .period-subtitle {
+  color: #64748b !important;
+}
+
+.light-theme .btn.secondary {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border-color: #cbd5e1 !important;
+}
+
+.light-theme .btn.secondary:hover {
+  border-color: #dc2626 !important;
+  color: #dc2626 !important;
+}
+
+/* Toast Light Theme */
+.light-theme .toast {
+  background: #ffffff !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.light-theme .toast-message {
+  color: #1e293b !important;
+}
+
+/* Badge - SEMPRE branca com fundo roxo em ambos os temas */
+.btn-badge {
+  background: linear-gradient(135deg, #8b5cf6, #6366f1) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4) !important;
+}
+
+.light-theme .btn-badge {
+  background: linear-gradient(135deg, #8b5cf6, #6366f1) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4) !important;
+}
+
+/* Scenario Selector in light theme */
+.light-theme .scenario-selector {
+  border-bottom-color: #e2e8f0 !important;
+}
+
+.light-theme .selector-label {
+  color: #475569 !important;
+}
+
+.light-theme .scenario-pill {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border-color: #cbd5e1 !important;
+}
+
+.light-theme .scenario-pill:hover {
+  border-color: #8b5cf6 !important;
+  color: #8b5cf6 !important;
+}
+
+.light-theme .scenario-pill.active {
+  background: linear-gradient(135deg, #8b5cf6, #2563eb) !important;
+  color: white !important;
+}
+
+/* Print styles */
+@media print {
+  .header,
+  .footer,
+  .theme-toggle,
+  .status-indicator,
+  .submit-btn,
+  .quick-examples,
+  .help-card,
+  .advanced-toggle,
+  .advanced-options,
+  .action-buttons {
+    display: none !important;
+  }
+  
+  .grid-layout {
+    display: block !important;
+  }
+  
+  .input-section {
+    display: none !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+    page-break-inside: avoid;
+  }
+}

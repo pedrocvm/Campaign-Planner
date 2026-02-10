@@ -56,7 +56,10 @@ The application will be available at `http://localhost:4200`
 - **Real-time Calculation**: Instant budget distribution across Video, Display, and Social channels
 - **Detailed Metrics**: Estimated impressions, reach, CPM, and daily breakdown
 - **Channel Insights**: Contextual recommendations for each channel
+- **Dark/Light Theme Toggle**: Switch between dark and light modes with preference persistence
+- **User-Friendly Language**: Designed for marketing professionals, not developers
 - **Responsive Design**: Works on desktop and mobile devices
+- **Copy & Print**: Export results to clipboard or print
 
 ---
 
